@@ -4,7 +4,10 @@
     ViewData["Title"] = "ClientRestaurants";
 }
 
-<h1>Client Restaurants</h1>
+<h2>Client Restaurants</h2>
+<table class="table" id="restuarants">
+    
+</table>
 
 @section Scripts {
 
@@ -23,6 +26,14 @@
             $.ajax("/api/Restaurants/", { method: "get" })
                 .then(function (response) {
                     console.log(response);
+                    $("#restuarants").dataTable({
+                        data: response,
+                        columns: [
+                            { "data": "name" },
+                            { "data": "location" },
+                            {"data" : "cuisine"}
+                        ]
+                    });
                 });
         });
     </script>

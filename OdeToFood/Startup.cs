@@ -44,11 +44,14 @@ namespace OdeToFood
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        //Configures/Installs all Middlewares
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                //cares only about outgoing response, does not care about incoming request. 
+                //call next middleware, and see if any middleware throws any exception and handle that exception, catches unhandled exception and shows stacktrace.
             }
             else
             {
@@ -56,12 +59,46 @@ namespace OdeToFood
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            
+            app.Use(async (ctx,next) =>
+            {
+                if (ctx.Request.Path.StartsWithSegments("/hellodc"))
+                {
+                    await ctx.Response.WriteAsync("Hello World!");
+                }
+                else
+                {
+                    await next();
+                }
+
+            });
+
+           
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseNodeModules(env); //installs middleware in the processing pipleines for ASP.NET Core
             app.UseCookiePolicy();
 
             app.UseMvc();
+        }
+
+      
+
+        private RequestDelegate SayHelloMiddleware(RequestDelegate next)
+        {
+            return async ctx =>
+            {
+                if (ctx.Request.Path.StartsWithSegments("/hello"))
+                {
+                    await ctx.Response.WriteAsync("Hello World!");
+                }
+                else
+                {
+                    await next(ctx);
+                }
+                
+            };
         }
     }
 }
